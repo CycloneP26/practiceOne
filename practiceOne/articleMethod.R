@@ -4,6 +4,8 @@ install.packages("dplyr")
 install.packages("ggplot2")
 install.packages("harmony")
 install.packages('leidenbase')
+install.packages('devtools')
+devtools::install_github('immunogenomics/presto')
 #Required libraries
 library(Seurat)
 library(dplyr)
@@ -21,9 +23,11 @@ seurat_obj <- RunPCA(data, features = rownames(data), verbose = FALSE)
 
 #Elbow plot 1
 ElbowPlot(seurat_obj, ndims = 50)
+
+#Figure 1
 #Elbow plot 2, helps with more clarity
 ElbowPlot(seurat_obj, ndims = 20)
-#See doc
+
 #Decided to use 10 dimensions
 
 rdOneDims <- 10
@@ -33,8 +37,9 @@ seurat_obj <- FindClusters(seurat_obj, resolution = 0.5)
 
 seurat_obj <- RunUMAP(seurat_obj, dims = 1:rdOneDims)
 #UMAP generated
+
+#Figure 2
 DimPlot(seurat_obj, reduction = "umap", label = TRUE)
-#See doc
 
 #Markers for different cell types that were laid out in the paper
 round1Markers <- c("Ppp1r1b",  # MSN
@@ -48,9 +53,31 @@ round1Markers <- c("Ppp1r1b",  # MSN
                   "Ccdc153")   # Ependymal
 
 FeaturePlot(seurat_obj, features = round1Markers, ncol = 3)
+
+#Figure 3
 DotPlot(seurat_obj, features = round1Markers) + RotatedAxis()
-#See doc
+
+#Figure 4
+#Microglia
 DotPlot(seurat_obj, features = "C1qa")
+seurat_obj <- RenameIdents(seurat_obj, '10' = "Microglia")
+
+#Figure 5
+#Endothelial
+DotPlot(seurat_obj, features = "Rgs5")
+seurat_obj <- RenameIdents(seurat_obj, '14' = "Endothelial")
+
+#Figure 6
+#Oligodendrocyte Precursors
+DotPlot(seurat_obj, features = "Pdgfra")
+seurat_obj <- RenameIdents(seurat_obj, '13' = "Oligodendrocyte Precursors")
+
+feats <- c("Drd1", "Drd2")
+DotPlot(seurat_obj, features = feats)
+FeaturePlot(seurat_obj, features = feats)
+
+
+FeaturePlot(seurat_obj, features = "C1qa")
 
 save.image(file = "articleMethod.RData")
 
